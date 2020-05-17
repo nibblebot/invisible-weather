@@ -1,8 +1,8 @@
 #!/usr/bin/env -S node -r "ts-node/register"
 const bent = require("bent")
-const flow = require("lodash/fp/flow")
 import * as querystring from "querystring"
 import { format } from "date-fns"
+const { flow, split, join, map } = require("lodash/fp")
 
 const argv = process.argv.splice(2)
 if (!argv.length) {
@@ -31,7 +31,7 @@ interface APIResponse {
   timezone: number
 }
 
-function formatTime(unixTimestamp, tzOffsetSeconds) {
+const formatTime = (unixTimestamp, tzOffsetSeconds) => {
   const date = new Date(unixTimestamp * 1000)
   const tzOffsetMinutes = tzOffsetSeconds / 60
   const tzOffsetHours = tzOffsetMinutes / 60
@@ -42,7 +42,7 @@ function formatTime(unixTimestamp, tzOffsetSeconds) {
   return format(adjustedDate, "h:mm aa ") + GMTOffset
 }
 
-function formatWeatherAndTime(json: APIResponse) {
+const formatWeatherAndTime = (json: APIResponse) => {
   const weatherDescription = json.weather[0].main
   const temp = Math.floor(json.main.temp) + "°C"
   const humidity = json.main.humidity + "%"
@@ -73,16 +73,11 @@ export const fetchWeather = async (query: string) => {
 
   return getJSON(url)
     .then(formatWeatherAndTime)
-    .catch((err) => {
-      return `${query}: Invalid City or Zip Code`
-    })
+    .catch(() => `${query}: Invalid City or Zip Code`)
 }
 
-export const fetchWeathers = async (queries: string) => {
-  const args = queries.split(", ")
-  const results = await Promise.all(args.map(fetchWeather))
-  return results.join("\n")
-}
+export const fetchWeathers = (queries: string) =>
+  Promise.all(flow(split(", "), map(fetchWeather))(queries)).then(join("\n"))
 
 if (require.main === module) {
   ;(async () => {

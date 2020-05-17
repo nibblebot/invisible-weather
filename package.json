@@ -1,0 +1,26 @@
+{
+  "name": "invisible-weather",
+  "version": "1.0.0",
+  "description": "fetch weather for multiple cities",
+  "main": "index.ts",
+  "scripts": {
+    "test": "ts-mocha"
+  },
+  "author": "Joshua Hanson",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.1",
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2",
+    "nock": "^12.0.3",
+    "ts-mocha": "^7.0.0",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2"
+  },
+  "dependencies": {
+    "bent": "^7.3.1",
+    "date-fns": "^2.13.0"
+  }
+}

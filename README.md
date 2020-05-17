@@ -1,6 +1,6 @@
 # Usage
 
-`./weather.ts <city>
+`./weather.ts <city>`
 
 # Tests
 

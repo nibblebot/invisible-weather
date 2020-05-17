@@ -1,5 +1,6 @@
 #!/usr/bin/env -S node -r "ts-node/register"
 const bent = require("bent")
+const flow = require("lodash/fp/flow")
 import * as querystring from "querystring"
 import { format } from "date-fns"
 
@@ -41,7 +42,7 @@ function formatTime(unixTimestamp, tzOffsetSeconds) {
   return format(adjustedDate, "h:mm aa ") + GMTOffset
 }
 
-function formatWeatherAndTime(json) {
+function formatWeatherAndTime(json: APIResponse) {
   const weatherDescription = json.weather[0].main
   const temp = Math.floor(json.main.temp) + "°C"
   const humidity = json.main.humidity + "%"
@@ -69,17 +70,22 @@ export const fetchWeather = async (query: string) => {
   const url =
     "https://api.openweathermap.org/data/2.5/weather?" +
     querystring.stringify(params)
-  try {
-    const json: APIResponse = await getJSON(url)
-    return formatWeatherAndTime(json)
-  } catch (err) {
-    console.error(err)
-    return `${query}: Invalid City or Zip Code`
-  }
+
+  return getJSON(url)
+    .then(formatWeatherAndTime)
+    .catch((err) => {
+      return `${query}: Invalid City or Zip Code`
+    })
+}
+
+export const fetchWeathers = async (queries: string) => {
+  const args = queries.split(", ")
+  const results = await Promise.all(args.map(fetchWeather))
+  return results.join("\n")
 }
 
 if (require.main === module) {
   ;(async () => {
-    console.log(await fetchWeather(args))
+    console.log(await fetchWeathers(args))
   })()
 }
